@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import torchvision.models as models
 from torch.autograd import Variable
 import numpy as np
+from model.kervnet.kervolution import kerv
 from model.utils.config import cfg
 from model.rpn.rpn import _RPN
 from model.roi_pooling.modules.roi_pool import _RoIPooling
@@ -16,10 +17,10 @@ import time
 import pdb
 from model.utils.net_utils import _smooth_l1_loss, _crop_pool_layer, _affine_grid_gen, _affine_theta
 
-class _fasterRCNN(nn.Module):
-    """ faster RCNN """
+class _fasterRKNN(nn.Module):
+    """ faster R-KNN """
     def __init__(self, classes, class_agnostic):
-        super(_fasterRCNN, self).__init__()
+        super(_fasterRKNN, self).__init__()
         self.classes = classes
         self.n_classes = len(classes)
         self.class_agnostic = class_agnostic

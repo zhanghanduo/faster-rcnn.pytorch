@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from model.utils.config import cfg
 from model.faster_rcnn.faster_rcnn import _fasterRCNN
+from model.kervnet.kervolution import kerv
 
 import torch
 import torch.nn as nn
@@ -13,7 +14,7 @@ import math
 import torch.utils.model_zoo as model_zoo
 import pdb
 
-__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
+__all__ = ['kerv_ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
        'resnet152']
 
 
@@ -102,10 +103,10 @@ class Bottleneck(nn.Module):
     return out
 
 
-class ResNet(nn.Module):
+class kerv_ResNet(nn.Module):
   def __init__(self, block, layers, num_classes=1000):
     self.inplanes = 64
-    super(ResNet, self).__init__()
+    super(kerv_ResNet, self).__init__()
     self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                  bias=False)
     self.bn1 = nn.BatchNorm2d(64)
@@ -168,7 +169,7 @@ def resnet18(pretrained=False):
   Args:
     pretrained (bool): If True, returns a model pre-trained on ImageNet
   """
-  model = ResNet(BasicBlock, [2, 2, 2, 2])
+  model = kerv_ResNet(BasicBlock, [2, 2, 2, 2])
   if pretrained:
     model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
   return model
@@ -179,7 +180,7 @@ def resnet34(pretrained=False):
   Args:
     pretrained (bool): If True, returns a model pre-trained on ImageNet
   """
-  model = ResNet(BasicBlock, [3, 4, 6, 3])
+  model = kerv_ResNet(BasicBlock, [3, 4, 6, 3])
   if pretrained:
     model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
   return model
@@ -190,7 +191,7 @@ def resnet50(pretrained=False):
   Args:
     pretrained (bool): If True, returns a model pre-trained on ImageNet
   """
-  model = ResNet(Bottleneck, [3, 4, 6, 3])
+  model = kerv_ResNet(Bottleneck, [3, 4, 6, 3])
   if pretrained:
     model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
   return model
@@ -201,7 +202,7 @@ def resnet101(pretrained=False):
   Args:
     pretrained (bool): If True, returns a model pre-trained on ImageNet
   """
-  model = ResNet(Bottleneck, [3, 4, 23, 3])
+  model = kerv_ResNet(Bottleneck, [3, 4, 23, 3])
   if pretrained:
     model.load_state_dict(model_zoo.load_url(model_urls['resnet101']))
   return model
@@ -212,7 +213,7 @@ def resnet152(pretrained=False):
   Args:
     pretrained (bool): If True, returns a model pre-trained on ImageNet
   """
-  model = ResNet(Bottleneck, [3, 8, 36, 3])
+  model = kerv_ResNet(Bottleneck, [3, 8, 36, 3])
   if pretrained:
     model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
   return model
