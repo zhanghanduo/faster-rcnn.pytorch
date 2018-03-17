@@ -8,6 +8,7 @@ from model.utils.config import cfg
 from .proposal_layer import _ProposalLayer
 from .anchor_target_layer import _AnchorTargetLayer
 from model.utils.net_utils import _smooth_l1_loss
+from model.kervolution.kervolution import Kerv2d
 
 import numpy as np
 import math
@@ -25,15 +26,17 @@ class _RPN(nn.Module):
         self.feat_stride = cfg.FEAT_STRIDE[0]
 
         # define the convrelu layers processing input feature map
-        self.RPN_Conv = nn.Conv2d(self.din, 512, 3, 1, 1, bias=True)
-
+        self.RPN_Conv = nn.Kerv2d(self.din, 512, 3, 1, 1, mapping='translation',
+                            kernel_type='polynomial', learnable_kernel=True,
+                            kernel_regularizer=False, bias=True)
+        # self.RPN_Conv = nn.Conv2d(self.din, 512, 3, 1, 1, bias=True)
         # define bg/fg classifcation score layer
         self.nc_score_out = len(self.anchor_scales) * len(self.anchor_ratios) * 2 # 2(bg/fg) * 9 (anchors)
-        self.RPN_cls_score = nn.Conv2d(512, self.nc_score_out, 1, 1, 0)
+        self.RPN_cls_score = nn.Kerv2d(512, self.nc_score_out, 1, 1, 0)
 
         # define anchor box offset prediction layer
         self.nc_bbox_out = len(self.anchor_scales) * len(self.anchor_ratios) * 4 # 4(coords) * 9 (anchors)
-        self.RPN_bbox_pred = nn.Conv2d(512, self.nc_bbox_out, 1, 1, 0)
+        self.RPN_bbox_pred = nn.Kerv2d(512, self.nc_bbox_out, 1, 1, 0)
 
         # define proposal layer
         self.RPN_proposal = _ProposalLayer(self.feat_stride, self.anchor_scales, self.anchor_ratios)

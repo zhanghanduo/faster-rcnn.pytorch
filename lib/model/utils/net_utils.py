@@ -34,6 +34,16 @@ def weights_normal_init(model, dev=0.01):
             elif isinstance(m, nn.Linear):
                 m.weight.data.normal_(0.0, dev)
 
+def kerv_weights_normal_init(model, dev=0.01):
+    if isinstance(model, list):
+        for m in model:
+            kerv_weights_normal_init(m, dev)
+    else:
+        for m in model.modules():
+            if isinstance(m, nn.Kerv2d):
+                m.weight.data.normal_(0.0, dev)
+            elif isinstance(m, nn.Linear):
+                m.weight.data.normal_(0.0, dev)
 
 def clip_gradient(model, clip_norm):
     """Computes a gradient clipping coefficient based on gradient norm."""

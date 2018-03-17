@@ -41,10 +41,10 @@ class BasicBlock(nn.Module):
 
   def __init__(self, inplanes, planes, stride=1, downsample=None):
     super(BasicBlock, self).__init__()
-    self.conv1 = kerv3x3(inplanes, planes, stride)
+    self.conv1 = conv3x3(inplanes, planes, stride)
     self.bn1 = nn.BatchNorm2d(planes)
     self.relu = nn.ReLU(inplace=True)
-    self.conv2 = kerv3x3(planes, planes)
+    self.conv2 = conv3x3(planes, planes)
     self.bn2 = nn.BatchNorm2d(planes)
     self.downsample = downsample
     self.stride = stride
@@ -73,12 +73,12 @@ class Bottleneck(nn.Module):
 
   def __init__(self, inplanes, planes, stride=1, downsample=None):
     super(Bottleneck, self).__init__()
-    self.conv1 = nn.Kerv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False) # change
+    self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False) # change
     self.bn1 = nn.BatchNorm2d(planes)
-    self.conv2 = nn.Kerv2d(planes, planes, kernel_size=3, stride=1, # change
+    self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, # change
                  padding=1, bias=False)
     self.bn2 = nn.BatchNorm2d(planes)
-    self.conv3 = nn.Kerv2d(planes, planes * 4, kernel_size=1, bias=False)
+    self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
     self.bn3 = nn.BatchNorm2d(planes * 4)
     self.relu = nn.ReLU(inplace=True)
     self.downsample = downsample
@@ -111,8 +111,10 @@ class kerv_ResNet(nn.Module):
   def __init__(self, block, layers, num_classes=1000):
     self.inplanes = 64
     super(kerv_ResNet, self).__init__()
-    self.conv1 = nn.Kerv2d(3, 64, kernel_size=7, stride=2, padding=3,
-                 bias=False)
+    # self.conv1 = nn.Kerv2d(3, 64, kernel_size=7, stride=2, padding=3,mapping='translation',
+    #                     kernel_type='polynomial', learnable_kernel=True,
+    #                     kernel_regularizer=False, bias=False)
+    self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,bias=False)
     self.bn1 = nn.BatchNorm2d(64)
     self.relu = nn.ReLU(inplace=True)
     self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=0, ceil_mode=True) # change
@@ -126,7 +128,7 @@ class kerv_ResNet(nn.Module):
     self.fc = nn.Linear(512 * block.expansion, num_classes)
 
     for m in self.modules():
-      if isinstance(m, nn.Kerv2d):
+      if isinstance(m, nn.Conv2d):
         n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
         m.weight.data.normal_(0, math.sqrt(2. / n))
       elif isinstance(m, nn.BatchNorm2d):
@@ -137,7 +139,7 @@ class kerv_ResNet(nn.Module):
     downsample = None
     if stride != 1 or self.inplanes != planes * block.expansion:
       downsample = nn.Sequential(
-        nn.Kerv2d(self.inplanes, planes * block.expansion,
+        nn.Conv2d(self.inplanes, planes * block.expansion,
               kernel_size=1, stride=stride, bias=False),
         nn.BatchNorm2d(planes * block.expansion),
       )
@@ -222,7 +224,7 @@ def resnet152(pretrained=False):
     model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
   return model
 
-class resnet(_fasterRKNN):
+class k_resnet(_fasterRKNN):
   def __init__(self, classes, num_layers=101, pretrained=False, class_agnostic=False):
     self.model_path = 'data/pretrained_model/resnet101_caffe.pth'
     self.dout_base_model = 1024
